@@ -3,8 +3,8 @@ section .text
 global _start
 _start:
 ; available registers:
-; rbx 
-; rbp
+; rbx - instruction pointer
+; rbp - data pointer
 ; rdi
 ; rsi
 ; rsp
@@ -12,6 +12,8 @@ _start:
 ; r13
 ; r14
 ; r15
+
+mov rbp, memory
 
 ; print prompt
   mov rax, 1
@@ -43,28 +45,22 @@ syscall
 
 execute:
 ; instruction ptr is in rbx
+; memory pointer is in rbp
+
 ; case +,-,<,>,[,],., EOF(?) maybe use ! instead
 
 case_add:
   cmp byte [rbx], '+'
   jnz case_sub
-  mov rax, 1
-  mov rdi, 1
-  mov rsi, plusok
-  mov rdx, poklen
-  syscall
 
+  inc byte [rbp]
   jmp case_other
 
 case_sub:
   cmp byte [rbx], '-'
   jnz case_print
-  mov rax, 1
-  mov rdi, 1
-  mov rsi, minusok
-  mov rdx, moklen
-  syscall
 
+  dec byte [rbp]
   jmp case_other
 
 case_print:
@@ -72,8 +68,8 @@ case_print:
   jnz case_done
   mov rax, 1
   mov rdi, 1
-  mov rsi, printok
-  mov rdx, proklen
+  mov rsi, rbp
+  mov rdx, 1
   syscall
 
   jmp case_other
@@ -82,7 +78,7 @@ case_done:
   cmp byte [rbx], '!'
   jnz case_other
   mov rax, 60
-  mov rdi, 42 ; return 42 to show we exited intentionally
+  mov rdi, [rbp] ; return value of first memory cell
   syscall
 
 case_other:
@@ -95,6 +91,7 @@ section .data
 
 prompt1 db ": ", 0
 len1 equ $ - prompt1
+
 prompt2 db ", ", 0
 len2 equ $ - prompt2
 
@@ -119,7 +116,7 @@ testprog times 72 db "+" ; hopefully H
 db ".!", 0
 testlen equ $ - testprog
 
-testprog2 db " +,,- ?!++", 0
+testprog2 db " ++++,,- ?!++", 0
 testlen2 equ $ - testprog2
 
 
