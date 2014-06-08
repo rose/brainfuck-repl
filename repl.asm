@@ -35,7 +35,7 @@ mov rbp, memory
 ;   print prompt2
 ;   append input to buffer
 ; execute buffer
-  mov rbx, testprog2
+  mov rbx, testprog
   jmp execute
 
 ; exit(0)
