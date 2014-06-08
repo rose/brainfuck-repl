@@ -134,7 +134,7 @@ memory times 10000 db 0
 memlen equ $ - memory
 lastmem equ memory + memlen - 1
 
-buffer times 1000 db 0
+buffer times 10000 db 0
 buflen equ $ - buffer
 
 
