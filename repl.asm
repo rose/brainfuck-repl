@@ -58,9 +58,27 @@ case_add:
 
 case_sub:
   cmp byte [rbx], '-'
-  jnz case_print
+  jnz case_back
 
   dec byte [rbp]
+  jmp case_other
+
+case_back:
+  cmp byte [rbx], '<'
+  jnz case_forward
+
+  cmp rbp, memory
+  je segfault_low
+  dec rbp
+  jmp case_other
+
+case_forward:
+  cmp byte [rbx], '>'
+  jnz case_print
+
+  inc rbp
+  cmp rbp, lastmem
+  je segfault_high
   jmp case_other
 
 case_print:
@@ -78,7 +96,7 @@ case_done:
   cmp byte [rbx], '!'
   jnz case_other
   mov rax, 60
-  mov rdi, [rbp] ; return value of first memory cell
+  mov rdi, lastmem ; return value of current memory cell
   syscall
 
 case_other:
@@ -87,7 +105,40 @@ case_other:
 
 
 
+segfault_low:
+  mov rax, 1
+  mov rdi, 1
+  mov rsi, seglow
+  mov rdx, seglowlen
+  syscall
+  mov rax, 60
+  mov rdi, 2
+  syscall
+
+segfault_high:
+  mov rax, 1
+  mov rdi, 1
+  mov rsi, seghi
+  mov rdx, seghilen
+  syscall
+  mov rax, 60
+  mov rdi, 2
+  syscall
+
+
+
+
 section .data
+
+memory times 10000 db 0
+memlen equ $ - memory
+lastmem equ memory + memlen - 1
+
+buffer times 1000 db 0
+buflen equ $ - buffer
+
+
+; strings
 
 prompt1 db ": ", 0
 len1 equ $ - prompt1
@@ -95,10 +146,11 @@ len1 equ $ - prompt1
 prompt2 db ", ", 0
 len2 equ $ - prompt2
 
-memory times 10000 db 0
+seglow db "Fatal:  Attempt to move memory pointer below 0!", 10, 13, 0
+seglowlen equ $ - seglow
 
-buffer times 1000 db 0
-buflen equ $ - buffer
+seghi db "Fatal:  Attempt to move memory pointer above 10000!", 10, 13, 0
+seghilen equ $ - seghi
 
 
 ; test stuff
