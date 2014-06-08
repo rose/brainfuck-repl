@@ -35,7 +35,7 @@ mov rbp, memory
 ;   print prompt2
 ;   append input to buffer
 ; execute buffer
-  mov rbx, testprog
+  mov rbx, buffer
   jmp execute
 
 ; exit(0)
@@ -95,22 +95,13 @@ len1 equ $ - prompt1
 prompt2 db ", ", 0
 len2 equ $ - prompt2
 
-printok db "-ok", 0
-proklen equ $ - printok
-
-minusok db "-ok", 0
-moklen equ $ - minusok
-
-plusok db "+ok", 0
-poklen equ $ - plusok
-
-otherok db "other ok", 0
-ooklen equ $ - otherok
-
 memory times 10000 db 0
 
 buffer times 1000 db 0
 buflen equ $ - buffer
+
+
+; test stuff
 
 testprog times 72 db "+" ; hopefully H
 db ".!", 0
